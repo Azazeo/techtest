@@ -10,8 +10,14 @@ def get_val_from_cache(name, year_start, year_end):
         return None
     except FileNotFoundError as e:
         return None
+    except:
+        print("Some error with cache - remove .cache file and try again")
+        exit(0)
 
 
 def write_val_to_cache(name, year_start, year_end, val):
-    f = open('.cache', 'a')
-    f.write(name+year_start+year_end+'\t'+val+'\n')
+    try:
+        f = open('.cache', 'a')
+        f.write(name+year_start+year_end+'\t'+val+'\n')
+    except:
+        print("Warning: cannot write to .cache file")
