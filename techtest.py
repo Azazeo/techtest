@@ -5,6 +5,7 @@ __author__ = 'd.tabakerov'
 from sys import argv
 
 from aggregator import calculate
+from cache import get_val_from_cache, write_val_to_cache
 from connector import do_request
 from parser import parse_page
 
@@ -29,11 +30,20 @@ if __name__ == '__main__':
         print('Warning: no data before 1880, start year will be set to 1880')
         year_start = '1880'
 
-    page = do_request('http://www.socialsecurity.gov/cgi-bin/babyname.cgi', name, year_start)
-    data = parse_page(page, year_end)
-    if len(data) > 0:
-        result = calculate(data)
-        print("Between {} and {} the average popularity rank of the name {} was {:.2f}".
-              format(year_start, year_end, name, result))
-    else:
+    cashed = get_val_from_cache(name, year_start, year_end)
+    if cashed is None:
+        page = do_request('http://www.socialsecurity.gov/cgi-bin/babyname.cgi', name, year_start)
+        data = parse_page(page, year_end)
+        if len(data) > 0:
+            result = calculate(data)
+            print("Between {} and {} the average popularity rank of the name {} was {:.2f}".
+                  format(year_start, year_end, name, result))
+            write_val_to_cache(name, year_start, year_end, '{:.2f}'.format(result))
+        else:
+            print("No data found for name '{}'".format(name))
+            write_val_to_cache(name, year_start, year_end, '_')
+    elif cashed == '_':
         print("No data found for name '{}'".format(name))
+    else:
+        print("Between {} and {} the average popularity rank of the name {} was {}".
+              format(year_start, year_end, name, cashed))
