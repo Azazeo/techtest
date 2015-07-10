@@ -7,7 +7,7 @@ from sys import argv
 from aggregator import calculate
 from cache import get_val_from_cache, write_val_to_cache
 from connector import do_request
-from parser import parse_page
+from ssparser import parse_page
 
 
 if __name__ == '__main__':
